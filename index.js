@@ -10,7 +10,8 @@ app.use(bodyParser.json());
 app.use(express.static('public'));
 
 app.get('/tree', (req, res) => {
-  envision.getTree('../mytrips/src/components/app.js', (tree) => {
+  const { root } = req.query;
+  envision.getTree(root, (tree) => {
     res.json(tree);
   })
 })
