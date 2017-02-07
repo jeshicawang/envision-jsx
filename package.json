@@ -1,0 +1,23 @@
+{
+  "name": "envision",
+  "version": "1.0.0",
+  "description": "A developer tool to visualize an application's component hierarchy.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jeshicawang/envision.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jeshicawang/envision/issues"
+  },
+  "homepage": "https://github.com/jeshicawang/envision#readme",
+  "dependencies": {
+    "acorn-jsx": "^3.0.1"
+  }
+}
