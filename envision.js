@@ -29,11 +29,15 @@ const readFilesIntoTreeRecursive = (directory, root, tree) => {
   return new Promise((resolve, reject) => fs.readFile(directory + root, 'utf8', (err, data) => {
     if (err) return console.log(err);
     const children = parse(data);
-    if (!children.length) resolve(tree);
-    const childrenPromises = children.map(({ name, file }, index) => readFilesIntoTreeRecursive(directory, file, { name }));
-    Promise.all(childrenPromises)
-    .then(result => tree.children = result)
-    .then(() => resolve(tree))
+    if (!children.length) {
+      resolve(tree);
+      return;
+    }
+    const promises = children.map(({ name, file }, index) => readFilesIntoTreeRecursive(directory, file, { name }));
+    Promise.all(promises)
+      .then(result => tree.children = result)
+      .then(() => resolve(tree))
+
   }))
 }
 
