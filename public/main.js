@@ -11,7 +11,7 @@ function drawTree(data) {
 
   const root = d3.hierarchy(data, d => d.children ? d.children : null);
 
-  const width = 960;
+  const width = 1200;
   const height = 960;
 
   const svg = d3.select('#tree')
@@ -46,7 +46,7 @@ function drawTree(data) {
 
   node.append('text')
     .attr('dy', 3)
-    .attr('y', d => d.children ? -10 : 10)
+    .attr('y', d => d.children ? -12 : 12)
     .style('text-anchor', 'middle')
     .text(d => {
       console.log(d);
