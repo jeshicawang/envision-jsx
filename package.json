@@ -4,9 +4,10 @@
   "description": "A developer tool to visualize an application's component hierarchy.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node .",
-    "watch": "nodemon ."
+    "start": "npm start && node .",
+    "watch": "npm run bundle:watch & nodemon .",
+    "bundle": "browserify public/main.js -o public/bundle.js",
+    "bundle:watch": "watchify public/main.js -o public/bundle.js"
   },
   "repository": {
     "type": "git",
@@ -22,6 +23,12 @@
   "dependencies": {
     "acorn-jsx": "^3.0.1",
     "body-parser": "^1.16.0",
+    "d3": "^4.5.0",
     "express": "^4.14.1"
+  },
+  "devDependencies": {
+    "browserify": "^14.0.0",
+    "nodemon": "^1.11.0",
+    "watchify": "^3.9.0"
   }
 }
