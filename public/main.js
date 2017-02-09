@@ -4,12 +4,16 @@ const rootFile = '../mytrips/src/index.js';
 
 fetch('/tree?root=' + rootFile)
   .then(results => results.json())
-  .then(data => console.log(data))
+  .then(drawTree)
   .catch(error => console.error(error));
 
 function drawTree(data) {
 
-  const root = d3.hierarchy(data, d => d.children ? d.children : null);
+  const stratify = d3.stratify()
+    .id(d => d)
+    .parentId(d => d.substring(0, d.lastIndexOf('.')));
+
+  const root = stratify(data);
 
   const width = 1200;
   const height = 960;
@@ -48,6 +52,6 @@ function drawTree(data) {
     .attr('dy', 3)
     .attr('y', d => d.children ? -12 : 12)
     .style('text-anchor', 'middle')
-    .text(d => d.data.name);
+    .text(d => d.id.substring(d.id.lastIndexOf('.') + 1));
 
 }
