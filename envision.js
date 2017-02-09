@@ -1,52 +1,51 @@
 const fs = require('fs');
 const acorn = require('acorn-jsx');
+const walk = require('acorn/dist/walk');
 
-const isRequiredFromSameDirectory = (node) => {
-  return ((node.type === 'VariableDeclaration')
-  && node.declarations
-  && node.declarations[0].init
-  && (node.declarations[0].init.type === 'CallExpression')
-  && (node.declarations[0].init.callee.name === 'require'))
-  && (node.declarations[0].init.arguments[0].value.substring(0,2) === './')
-}
-
-const transform = (node) => ({
-  name: node.declarations[0].id.name,
-  file: node.declarations[0].init.arguments[0].value.substring(2)
+// custom base adding functionality for walk to traverse JSX
+const base = Object.assign({}, walk.base, {
+  JSXElement: (node, st, c) => node.children.forEach(n => c(n, st)),
+  JSXExpressionContainer: (node, st, c) => c(node.expression, st)
 })
 
-const parse = (data) => {
-  const ast = acorn.parse(data, {
-    plugins: { jsx: true }
-  });
-  const nodes = ast.body;
-  return nodes
-    .filter(node => isRequiredFromSameDirectory(node))
-    .map(node => transform(node))
+const VariableDeclaratorVisitors = (rootDirectory, hierarchy, chain) => ({
+  VariableDeclarator: (node, state) => {
+    if (node.id.name !== state) return;
+    if (node.init.type === 'ArrowFunctionExpression') return;
+    const value = node.init.arguments[0].value;
+    const file = rootDirectory + value.substring(2);
+    rootDirectory = file.substring(0, file.lastIndexOf('/') + 1);
+    readFiles(file, { rootDirectory, hierarchy, chain });
+  }
+})
+
+const JSXElementVisitors = (ast) => ({
+  JSXElement: (node, { rootDirectory, hierarchy, chain }, ancestors) => {
+    const componentChain = ancestors
+      .filter(a => a.type === 'JSXElement')
+      .map(a => a.openingElement.name.name)
+      .filter(name => name.charAt(0) === name.charAt(0).toUpperCase())
+      .reduce((hierarchy, name) => hierarchy + (hierarchy ? '.' : '') + name, chain);
+    if (!componentChain || componentChain === chain) return;
+    hierarchy.push(componentChain);
+    if (!node.openingElement.selfClosing) return;
+    const state = node.openingElement.name.name;
+    walk.simple(ast, VariableDeclaratorVisitors(rootDirectory, hierarchy, componentChain), base, state)
+  }
+})
+
+const readFiles = (rootFile, state) => {
+  const data = fs.readFileSync(rootFile, 'utf-8');
+  const ast = acorn.parse(data, { plugins: { jsx: true } });
+  walk.ancestor(ast, JSXElementVisitors(ast), base, state);
 }
 
-const readFilesIntoTreeRecursive = (directory, root, tree) => {
-  return new Promise((resolve, reject) => fs.readFile(directory + root, 'utf8', (err, data) => {
-    if (err) return console.log(err);
-    const children = parse(data);
-    if (!children.length) {
-      resolve(tree);
-      return;
-    }
-    const promises = children.map(({ name, file }, index) => readFilesIntoTreeRecursive(directory, file, { name }));
-    Promise.all(promises)
-      .then(result => tree.children = result)
-      .then(() => resolve(tree))
-
-  }))
-}
-
-const getTree = (rootFile, callback) => {
-  const index = rootFile.lastIndexOf('/');
-  const directory = rootFile.substring(0, index+1);
-  const root = rootFile.substring(index+1);
-  readFilesIntoTreeRecursive(directory, root, { name: 'App' })
-  .then(callback);
+// rootFile is the file containing the ReactDOM.render() call.
+const getTree = (rootFile) => {
+  const hierarchy = [];
+  const rootDirectory = rootFile.substring(0, rootFile.lastIndexOf('/') + 1);
+  readFiles(rootFile, { rootDirectory, hierarchy, chain: '' });
+  return hierarchy;
 }
 
 module.exports = { getTree };
