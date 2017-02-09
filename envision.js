@@ -8,7 +8,7 @@ const base = Object.assign({}, walk.base, {
   JSXExpressionContainer: (node, st, c) => c(node.expression, st)
 })
 
-const VariableDeclaratorVisitors = (rootDirectory, hierarchy, chain) => ({
+const variableDeclaratorVisitors = (rootDirectory, hierarchy, chain) => ({
   VariableDeclarator: (node, state) => {
     if (node.id.name !== state) return;
     if (node.init.type === 'ArrowFunctionExpression') return;
@@ -19,7 +19,7 @@ const VariableDeclaratorVisitors = (rootDirectory, hierarchy, chain) => ({
   }
 })
 
-const JSXElementVisitors = (ast) => ({
+const jsxElementVisitors = (ast) => ({
   JSXElement: (node, { rootDirectory, hierarchy, chain }, ancestors) => {
     const componentChain = ancestors
       .filter(a => a.type === 'JSXElement')
@@ -30,14 +30,14 @@ const JSXElementVisitors = (ast) => ({
     hierarchy.push(componentChain);
     if (!node.openingElement.selfClosing) return;
     const state = node.openingElement.name.name;
-    walk.simple(ast, VariableDeclaratorVisitors(rootDirectory, hierarchy, componentChain), base, state)
+    walk.simple(ast, variableDeclaratorVisitors(rootDirectory, hierarchy, componentChain), base, state)
   }
 })
 
 const readFiles = (rootFile, state) => {
   const data = fs.readFileSync(rootFile, 'utf-8');
   const ast = acorn.parse(data, { plugins: { jsx: true } });
-  walk.ancestor(ast, JSXElementVisitors(ast), base, state);
+  walk.ancestor(ast, jsxElementVisitors(ast), base, state);
 }
 
 // rootFile is the file containing the ReactDOM.render() call.
