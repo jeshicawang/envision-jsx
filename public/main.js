@@ -1,6 +1,6 @@
 const d3 = require('d3');
 
-const rootFile = '../mytrips/src/components/app.js';
+const rootFile = '../mytrips/src/index.js';
 
 fetch('/tree?root=' + rootFile)
   .then(results => results.json())
@@ -48,9 +48,6 @@ function drawTree(data) {
     .attr('dy', 3)
     .attr('y', d => d.children ? -12 : 12)
     .style('text-anchor', 'middle')
-    .text(d => {
-      console.log(d);
-      return d.data.name;
-    })
+    .text(d => d.data.name);
 
 }
