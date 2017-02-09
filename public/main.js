@@ -4,7 +4,7 @@ const rootFile = '../mytrips/src/index.js';
 
 fetch('/tree?root=' + rootFile)
   .then(results => results.json())
-  .then(drawTree)
+  .then(data => console.log(data))
   .catch(error => console.error(error));
 
 function drawTree(data) {
