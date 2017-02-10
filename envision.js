@@ -2,6 +2,7 @@ const fs = require('fs');
 const acorn = require('acorn-jsx');
 const walk = require('acorn/dist/walk');
 
+const outputDirectory = 'jsx-hierarchy';
 let rootFile;
 
 // custom base adding functionality for walk to traverse JSX
@@ -42,14 +43,25 @@ const readFiles = (rootFile, state) => {
   walk.ancestor(ast, jsxElementVisitors(ast), base, state);
 }
 
+const copyFilesFromSrc = (...files) => files
+  .filter(file => !fs.existsSync(outputDirectory + '/' + file))
+  .forEach(file => fs.createReadStream('src/' + file).pipe(fs.createWriteStream(outputDirectory + '/' + file)))
+
+const createJSXHierarchyFiles = (hierarchy) => {
+  if (!fs.existsSync(outputDirectory))
+    fs.mkdirSync(outputDirectory);
+  fs.writeFile(outputDirectory + '/data.json', JSON.stringify(hierarchy), (err) => {
+    if (err) throw err;
+    console.log('Tree data written to data.json');
+  });
+  copyFilesFromSrc('bundle.js', 'index.html', 'default.css');
+}
+
 const writeTreeData = () => {
   const hierarchy = [];
   const rootDirectory = rootFile.substring(0, rootFile.lastIndexOf('/') + 1);
   readFiles(rootFile, { rootDirectory, hierarchy, chain: '' });
-  fs.writeFile('public/data.json', JSON.stringify(hierarchy), (err) => {
-    if (err) throw err;
-    console.log('Tree data written to data.json');
-  });
+  createJSXHierarchyFiles(hierarchy);
 }
 
 const setRootFile = (file) => rootFile = file;

@@ -9,6 +9,6 @@ envision.writeTreeData();
 
 app.use(bodyParser.json());
 
-app.use(express.static('public'));
+app.use(express.static('src'));
 
 app.listen(5000, () => console.log('listening on port 5000'));

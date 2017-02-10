@@ -6,8 +6,8 @@
   "scripts": {
     "start": "npm run bundle && node .",
     "watch": "npm run bundle:watch & nodemon .",
-    "bundle": "browserify public/main.js -o public/bundle.js",
-    "bundle:watch": "watchify public/main.js -o public/bundle.js"
+    "bundle": "browserify src/main.js -o src/bundle.js",
+    "bundle:watch": "watchify src/main.js -o src/bundle.js"
   },
   "repository": {
     "type": "git",
