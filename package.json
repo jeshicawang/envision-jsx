@@ -19,7 +19,8 @@
   },
   "homepage": "https://github.com/jeshicawang/envision#readme",
   "dependencies": {
-    "acorn-jsx": "^3.0.1"
+    "acorn-jsx": "^3.0.1",
+    "mustache": "^2.3.0"
   },
   "devDependencies": {
     "nodemon": "^1.11.0"

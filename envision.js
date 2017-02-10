@@ -1,6 +1,7 @@
 const fs = require('fs');
 const acorn = require('acorn-jsx');
 const walk = require('acorn/dist/walk');
+const Mustache = require('mustache');
 
 const outputDirectory = 'jsx-hierarchy';
 let rootFile;
@@ -54,11 +55,13 @@ const copyFilesFromSrc = (...files) => files
 const createJSXHierarchyFiles = (hierarchy) => {
   if (!fs.existsSync(outputDirectory))
     fs.mkdirSync(outputDirectory);
-  fs.writeFile(outputDirectory + '/data.json', JSON.stringify(hierarchy), (err) => {
+  const template = fs.readFileSync(__dirname + '/src/template.mustache', 'utf-8');
+  const output = Mustache.render(template, { hierarchy: JSON.stringify(hierarchy) })
+  fs.writeFile(outputDirectory + '/main.js', output, (err) => {
     if (err) throw err;
-    console.log('Tree data written to data.json');
-  });
-  copyFilesFromSrc('main.js', 'index.html', 'default.css');
+    console.log('main.js written');
+  })
+  copyFilesFromSrc('index.html', 'default.css');
 }
 
 // compute hierarchial tree data starting from rootFile and create files to render the tree display.
