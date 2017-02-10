@@ -2,6 +2,8 @@ const fs = require('fs');
 const acorn = require('acorn-jsx');
 const walk = require('acorn/dist/walk');
 
+let rootFile;
+
 // custom base adding functionality for walk to traverse JSX
 const base = Object.assign({}, walk.base, {
   JSXElement: (node, st, c) => node.children.forEach(n => c(n, st)),
@@ -40,12 +42,16 @@ const readFiles = (rootFile, state) => {
   walk.ancestor(ast, jsxElementVisitors(ast), base, state);
 }
 
-// rootFile is the file containing the ReactDOM.render() call.
-const getTree = (rootFile) => {
+const writeTreeData = () => {
   const hierarchy = [];
   const rootDirectory = rootFile.substring(0, rootFile.lastIndexOf('/') + 1);
   readFiles(rootFile, { rootDirectory, hierarchy, chain: '' });
-  return hierarchy;
+  fs.writeFile('public/data.json', JSON.stringify(hierarchy), (err) => {
+    if (err) throw err;
+    console.log('Tree data written to data.json');
+  });
 }
 
-module.exports = { getTree };
+const setRootFile = (file) => rootFile = file;
+
+module.exports = { setRootFile, writeTreeData };
