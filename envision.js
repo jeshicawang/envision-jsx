@@ -4,7 +4,6 @@ const walk = require('acorn/dist/walk');
 const Mustache = require('mustache');
 
 const outputDirectory = 'jsx-hierarchy';
-let rootFile;
 
 // custom walker algorithm adding functionality for walk to traverse JSX
 const base = Object.assign({}, walk.base, {
@@ -40,15 +39,14 @@ const jsxElementVisitors = (ast) => ({
   }
 })
 
-// parsing the data from rootFile and calling a walker function to traverse the resulting AST
-const readFiles = (rootFile, state) => {
-  const data = fs.readFileSync(rootFile, 'utf-8');
+// parsing the data from a file and calling a walker function to traverse the resulting AST
+const readFiles = (file, state) => {
+  const data = fs.readFileSync(file, 'utf-8');
   const ast = acorn.parse(data, { plugins: { jsx: true } });
   walk.ancestor(ast, jsxElementVisitors(ast), base, state);
 }
 
 const copyFilesFromSrc = (...files) => files
-//  .filter(file => !fs.existsSync(outputDirectory + '/' + file))
   .forEach(file => fs.createReadStream(__dirname + '/src/' + file).pipe(fs.createWriteStream(outputDirectory + '/' + file)))
 
 // copy files from src folder to jsx-hierarchy folder on the client side
@@ -65,14 +63,11 @@ const createJSXHierarchyFiles = (hierarchy) => {
 }
 
 // compute hierarchial tree data starting from rootFile and create files to render the tree display.
-const writeTreeData = () => {
+const envision = (rootFile) => {
   const hierarchy = [];
   const rootDirectory = rootFile.substring(0, rootFile.lastIndexOf('/') + 1);
   readFiles(rootFile, { rootDirectory, hierarchy, chain: '' });
   createJSXHierarchyFiles(hierarchy);
 }
 
-// sets the rootFile, should be the file where ReactDOM.render is called.
-const setRootFile = (file) => rootFile = file;
-
-module.exports = { setRootFile, writeTreeData };
+module.exports = envision;
