@@ -54,7 +54,7 @@ const createJSXHierarchyFiles = (hierarchy) => {
     if (err) throw err;
     console.log('Tree data written to data.json');
   });
-  copyFilesFromSrc('bundle.js', 'index.html', 'default.css');
+  copyFilesFromSrc('main.js', 'index.html', 'default.css');
 }
 
 const writeTreeData = () => {

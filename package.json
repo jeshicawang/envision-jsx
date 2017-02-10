@@ -4,8 +4,8 @@
   "description": "A developer tool to visualize an application's component hierarchy.",
   "main": "index.js",
   "scripts": {
-    "start": "npm run bundle && node .",
-    "watch": "npm run bundle:watch & nodemon .",
+    "start": "node .",
+    "watch": "nodemon .",
     "bundle": "browserify src/main.js -o src/bundle.js",
     "bundle:watch": "watchify src/main.js -o src/bundle.js"
   },

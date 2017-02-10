@@ -1,5 +1,3 @@
-const d3 = require('d3');
-
 const stratify = d3.stratify()
   .id(d => d)
   .parentId(d => d.substring(0, d.lastIndexOf('.')));
