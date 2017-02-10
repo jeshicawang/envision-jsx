@@ -1,4 +1,5 @@
 // const data = {{{hierarchy}}};
+const i = 0;
 
 const stratify = d3.stratify()
   .id(d => d)
@@ -24,9 +25,13 @@ update(root);
 function update(root) {
 
   const link = g.selectAll('.link')
-    .data(tree(root).descendants().slice(1))
-
-  link.exit().remove()
+    .data(tree(root).descendants().slice(1), d => d.id)
+    .attr('d', d => {
+      return "M" + d.x + "," + d.y
+        + "C" + d.x + "," + (d.y + d.parent.y) / 2
+        + " " + d.parent.x + "," + (d.y + d.parent.y) / 2
+        + " " + d.parent.x + "," + d.parent.y;
+    });
 
   link.enter().append('path')
     .attr('class', 'link')
@@ -37,19 +42,46 @@ function update(root) {
         + " " + d.parent.x + "," + d.parent.y;
     });
 
+  link.exit().remove();
+
   const node = g.selectAll('.node')
-    .data(root.descendants())
-    .enter().append('g')
+    .data(root.descendants(), d => d.id || (d.id = ++i));
+
+  const nodeEnter = node.enter()
+    .append('g')
       .attr('class', d => 'node' + (d.children ? ' node--internal' : ' node--leaf'))
       .attr('transform', d => 'translate(' + d.x + ',' + d.y + ')')
+      .on('click', click);
 
-  node.append('circle')
+  nodeEnter.append('circle')
     .attr('r', 2.5);
 
-  node.append('text')
+  nodeEnter.append('text')
     .attr('dy', 3)
     .attr('y', d => d.children ? -12 : 12)
     .style('text-anchor', 'middle')
     .text(d => d.id.substring(d.id.lastIndexOf('.') + 1));
 
+  const nodeUpdate = node
+    .attr('class', d => 'node' + (d.children ? ' node--internal' : ' node--leaf'))
+    .attr('transform', d => 'translate(' + d.x + ',' + d.y + ')');
+
+  nodeUpdate.select('text')
+    .attr('y', d => d.children ? -12 : 12);
+
+  const nodeExit = node.exit()
+    .remove();
+
+}
+
+// Toggle children on click.
+function click(d) {
+  if (d.children) {
+    d._children = d.children;
+    d.children = null;
+  } else {
+    d.children = d._children;
+    d._children = null;
+  }
+  update(root);
 }
