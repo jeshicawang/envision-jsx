@@ -55,7 +55,7 @@ const copyFilesFromSrc = (...files) => files
 const createJSXHierarchyFiles = (hierarchy) => {
   if (!fs.existsSync(outputDirectory))
     fs.mkdirSync(outputDirectory);
-  const template = fs.readFileSync(__dirname + '/src/template.mustache', 'utf-8');
+  const template = fs.readFileSync(__dirname + '/src/main.js', 'utf-8');
   const output = Mustache.render(template, { hierarchy: JSON.stringify(hierarchy) })
   fs.writeFile(outputDirectory + '/main.js', output, (err) => {
     if (err) throw err;
