@@ -1,4 +1,4 @@
-// Mustache template
+// const data = {{{hierarchy}}};
 
 const stratify = d3.stratify()
   .id(d => d)
@@ -17,7 +17,6 @@ const g = svg.append('g')
 const tree = d3.tree()
   .size([width - 160, height - 160]);
 
-const data = {{{hierarchy}}};
 const root = stratify(data);
 
 update(root);

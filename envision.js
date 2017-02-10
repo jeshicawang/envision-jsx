@@ -3,8 +3,6 @@ const acorn = require('acorn-jsx');
 const walk = require('acorn/dist/walk');
 const Mustache = require('mustache');
 
-const outputDirectory = 'jsx-hierarchy';
-
 // custom walker algorithm adding functionality for walk to traverse JSX
 const base = Object.assign({}, walk.base, {
   JSXElement: (node, st, c) => node.children.forEach(n => c(n, st)),
@@ -46,20 +44,19 @@ const readFiles = (file, state) => {
   walk.ancestor(ast, jsxElementVisitors(ast), base, state);
 }
 
-const copyFilesFromSrc = (...files) => files
-  .forEach(file => fs.createReadStream(__dirname + '/src/' + file).pipe(fs.createWriteStream(outputDirectory + '/' + file)))
-
-// copy files from src folder to jsx-hierarchy folder on the client side
-const createJSXHierarchyFiles = (hierarchy) => {
-  if (!fs.existsSync(outputDirectory))
-    fs.mkdirSync(outputDirectory);
-  const template = fs.readFileSync(__dirname + '/src/main.js', 'utf-8');
-  const output = Mustache.render(template, { hierarchy: JSON.stringify(hierarchy) })
-  fs.writeFile(outputDirectory + '/main.js', output, (err) => {
+// create envision.html file from src files
+const createEnvisionHTML = (hierarchy) => {
+  const template = fs.readFileSync(__dirname + '/src/template.mustache', 'utf-8');
+  const view = {
+    css: fs.readFileSync(__dirname + '/src/default.css', 'utf-8'),
+    javascript: fs.readFileSync(__dirname + '/src/main.js', 'utf-8'),
+    hierarchy: JSON.stringify(hierarchy)
+  }
+  const output = Mustache.render(template, view)
+  fs.writeFile('envision.html', output, (err) => {
     if (err) throw err;
-    console.log('main.js written');
+    console.log('envision.html created');
   })
-  copyFilesFromSrc('index.html', 'default.css');
 }
 
 // compute hierarchial tree data starting from rootFile and create files to render the tree display.
@@ -67,7 +64,7 @@ const envision = (rootFile) => {
   const hierarchy = [];
   const rootDirectory = rootFile.substring(0, rootFile.lastIndexOf('/') + 1);
   readFiles(rootFile, { rootDirectory, hierarchy, chain: '' });
-  createJSXHierarchyFiles(hierarchy);
+  createEnvisionHTML(hierarchy);
 }
 
 module.exports = envision;
