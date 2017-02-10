@@ -44,8 +44,8 @@ const readFiles = (rootFile, state) => {
 }
 
 const copyFilesFromSrc = (...files) => files
-  .filter(file => !fs.existsSync(outputDirectory + '/' + file))
-  .forEach(file => fs.createReadStream('src/' + file).pipe(fs.createWriteStream(outputDirectory + '/' + file)))
+//  .filter(file => !fs.existsSync(outputDirectory + '/' + file))
+  .forEach(file => fs.createReadStream(__dirname + '/src/' + file).pipe(fs.createWriteStream(outputDirectory + '/' + file)))
 
 const createJSXHierarchyFiles = (hierarchy) => {
   if (!fs.existsSync(outputDirectory))

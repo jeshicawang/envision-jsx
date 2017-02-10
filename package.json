@@ -5,9 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node .",
-    "watch": "nodemon .",
-    "bundle": "browserify src/main.js -o src/bundle.js",
-    "bundle:watch": "watchify src/main.js -o src/bundle.js"
+    "watch": "nodemon ."
   },
   "repository": {
     "type": "git",
@@ -21,14 +19,9 @@
   },
   "homepage": "https://github.com/jeshicawang/envision#readme",
   "dependencies": {
-    "acorn-jsx": "^3.0.1",
-    "body-parser": "^1.16.0",
-    "d3": "^4.5.0",
-    "express": "^4.14.1"
+    "acorn-jsx": "^3.0.1"
   },
   "devDependencies": {
-    "browserify": "^14.0.0",
-    "nodemon": "^1.11.0",
-    "watchify": "^3.9.0"
+    "nodemon": "^1.11.0"
   }
 }
