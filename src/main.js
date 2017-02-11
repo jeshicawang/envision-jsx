@@ -19,10 +19,13 @@ const tree = d3.tree()
   .size([width - 160, height - 160]);
 
 const root = stratify(data);
+root.x0 = x;
+root.y0 = y;
 
 update(root);
 
 function update(root) {
+
   const link = g.selectAll('.link')
     .data(tree(root).descendants().slice(1), d => d.id)
     .attr('d', d => {
@@ -70,6 +73,12 @@ function update(root) {
 
   const nodeExit = node.exit()
     .remove();
+
+  // Stash the old positions for transition.
+  root.descendants().forEach(function(d) {
+    d.x0 = d.x;
+    d.y0 = d.y;
+  });
 
 }
 
