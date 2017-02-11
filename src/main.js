@@ -56,7 +56,7 @@ function update(root) {
   const nodeEnter = node.enter()
     .append('g')
       .attr('class', d => 'node' + ((d.children || d._children) ? ' node--internal' : ' node--leaf'))
-      .attr('transform', d => 'translate(' + source.x0 + ',' + source.y0 + ')')
+      .attr('transform', d => 'translate(' + source.x0 + ',' + (d.children ? source.y0 + 24 : source.y0) + ')')
       .on('click', click);
 
   nodeEnter.append('circle')
@@ -78,7 +78,7 @@ function update(root) {
 
   const nodeExit = node.exit()
     .transition(t)
-    .attr('transform', d => 'translate(' + source.x + ',' + source.y + ')')
+    .attr('transform', d => 'translate(' + source.x + ',' + (d.children ? source.y + 24 : source.y) + ')')
     .remove();
 
 }
