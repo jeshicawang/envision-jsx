@@ -1,12 +1,15 @@
 // const data = {{{hierarchy}}};
-const i = 0;
 
 const stratify = d3.stratify()
   .id(d => d)
   .parentId(d => d.substring(0, d.lastIndexOf('.')));
 
+const root = stratify(data);
+
 const width = 1200;
 const height = 960;
+let source = { x0: width / 2 - 70, y0: 0 }
+let i = 0;
 
 const svg = d3.select('#tree')
   .attr('width', width)
@@ -18,36 +21,37 @@ const g = svg.append('g')
 const tree = d3.tree()
   .size([width - 160, height - 160]);
 
-const root = stratify(data);
-root.x0 = x;
-root.y0 = y;
+const path = (start, end) => {
+  if (!end) end = start;
+  return "M" + end.x + "," + end.y
+    + "C" + end.x + "," + (end.y + start.y) / 2
+    + " " + start.x + "," + (end.y + start.y) / 2
+    + " " + start.x + "," + start.y;
+}
 
 update(root);
 
 function update(root) {
+  const t = d3.transition().duration(2000);
 
   const link = g.selectAll('.link')
-    .data(tree(root).descendants().slice(1), d => d.id)
-    .attr('d', d => {
-      return "M" + d.x + "," + d.y
-        + "C" + d.x + "," + (d.y + d.parent.y) / 2
-        + " " + d.parent.x + "," + (d.y + d.parent.y) / 2
-        + " " + d.parent.x + "," + d.parent.y;
-    });
+    .data(tree(root).descendants().slice(1), d => d.key || (d.key = ++i))
 
-  link.enter().append('path')
+  const linkEnter = link.enter().insert('path', 'g')
     .attr('class', 'link')
-    .attr('d', d => {
-      return "M" + d.x + "," + d.y
-        + "C" + d.x + "," + (d.y + d.parent.y) / 2
-        + " " + d.parent.x + "," + (d.y + d.parent.y) / 2
-        + " " + d.parent.x + "," + d.parent.y;
-    });
+    .attr('d', d => path({ x: source.x0, y: source.y0 }));
 
-  link.exit().remove();
+  const linkUpdate = linkEnter.merge(link)
+    .transition(t)
+    .attr('d', d => path({ x: d.parent.x, y: d.parent.y }, { x: d.x, y: d.y }));
+
+  const linkExit = link.exit()
+    .transition(t)
+    .attr('d', d => path({ x: source.x, y: source.y }))
+    .remove();
 
   const node = g.selectAll('.node')
-    .data(root.descendants(), d => d.id || (d.id = ++i));
+    .data(root.descendants(), d => d.key || (d.key = ++i));
 
   const nodeEnter = node.enter()
     .append('g')
@@ -74,16 +78,11 @@ function update(root) {
   const nodeExit = node.exit()
     .remove();
 
-  // Stash the old positions for transition.
-  root.descendants().forEach(function(d) {
-    d.x0 = d.x;
-    d.y0 = d.y;
-  });
-
 }
 
 // Toggle children on click.
 function click(d) {
+  if (!d.children && !d._children) return;
   if (d.children) {
     d._children = d.children;
     d.children = null;
@@ -91,5 +90,8 @@ function click(d) {
     d.children = d._children;
     d._children = null;
   }
+  source = d;
+  source.x0 = d.x;
+  source.y0 = d.y;
   update(root);
 }
