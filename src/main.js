@@ -55,8 +55,8 @@ function update(root) {
 
   const nodeEnter = node.enter()
     .append('g')
-      .attr('class', d => 'node' + (d.children ? ' node--internal' : ' node--leaf'))
-      .attr('transform', d => 'translate(' + d.x + ',' + d.y + ')')
+      .attr('class', d => 'node' + ((d.children || d._children) ? ' node--internal' : ' node--leaf'))
+      .attr('transform', d => 'translate(' + source.x0 + ',' + source.y0 + ')')
       .on('click', click);
 
   nodeEnter.append('circle')
@@ -68,14 +68,17 @@ function update(root) {
     .style('text-anchor', 'middle')
     .text(d => d.id.substring(d.id.lastIndexOf('.') + 1));
 
-  const nodeUpdate = node
-    .attr('class', d => 'node' + (d.children ? ' node--internal' : ' node--leaf'))
+  const nodeUpdate = nodeEnter.merge(node)
+    .transition(t)
+    .attr('class', d => 'node' + ((d.children || d._children) ? ' node--internal' : ' node--leaf'))
     .attr('transform', d => 'translate(' + d.x + ',' + d.y + ')');
 
   nodeUpdate.select('text')
     .attr('y', d => d.children ? -12 : 12);
 
   const nodeExit = node.exit()
+    .transition(t)
+    .attr('transform', d => 'translate(' + source.x + ',' + source.y + ')')
     .remove();
 
 }
