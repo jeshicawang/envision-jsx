@@ -32,7 +32,7 @@ const path = (start, end) => {
 update(root);
 
 function update(root) {
-  const t = d3.transition().duration(2000);
+  const t = d3.transition().duration(1000);
 
   const link = g.selectAll('.link')
     .data(tree(root).descendants().slice(1), d => d.key || (d.key = ++i))
@@ -60,13 +60,19 @@ function update(root) {
       .on('click', click);
 
   nodeEnter.append('circle')
-    .attr('r', 2.5);
+    .attr('r', 2.5)
+    .style("fill-opacity", 1e-6)
+    .transition(t)
+    .style("fill-opacity", 1)
 
   nodeEnter.append('text')
     .attr('dy', 3)
     .attr('y', d => d.children ? -12 : 12)
     .style('text-anchor', 'middle')
-    .text(d => d.id.substring(d.id.lastIndexOf('.') + 1));
+    .style("fill-opacity", 1e-6)
+    .text(d => d.id.substring(d.id.lastIndexOf('.') + 1))
+    .transition(t)
+    .style("fill-opacity", 1)
 
   const nodeUpdate = nodeEnter.merge(node)
     .transition(t)
@@ -76,8 +82,17 @@ function update(root) {
   nodeUpdate.select('text')
     .attr('y', d => d.children ? -12 : 12);
 
-  const nodeExit = node.exit()
+  const nodeExit = node.exit();
+
+  nodeExit.select('text')
     .transition(t)
+    .style("fill-opacity", 1e-6);
+
+  nodeExit.select('circle')
+    .transition(t)
+    .style("fill-opacity", 1e-6);
+
+  nodeExit.transition(t)
     .attr('transform', d => 'translate(' + source.x + ',' + (d.children ? source.y + 24 : source.y) + ')')
     .remove();
 
