@@ -31,6 +31,8 @@ const path = (start, end) => {
 
 const id = (data) => data.id.substring(data.id.lastIndexOf('.') + 1)
 
+const inTrasition = false;
+
 update(root);
 
 function update(root) {
@@ -61,7 +63,7 @@ function update(root) {
     .append('g')
       .attr('class', d => 'node' + ((d.children || d._children) ? ' node--internal' : ' node--leaf'))
       .attr('transform', d => 'translate(' + source.x0 + ',' + source.y0 + ')')
-      .on('click', click)
+      .on('click', toggleChildren)
       .on('mouseenter', d => toggleFocus(d, true))
       .on('mouseleave', d => toggleFocus(d, false));
 
@@ -91,6 +93,8 @@ function update(root) {
     .transition(t)
     .attr('class', d => 'node' + ((d.children || d._children) ? ' node--internal' : ' node--leaf'))
     .attr('transform', d => 'translate(' + d.x + ',' + d.y + ')')
+    .on('start', () => inTransition = true)
+    .on('end', () => inTransition = false)
 
   const nodeExit = node.exit();
 
@@ -105,13 +109,15 @@ function update(root) {
 }
 
 function toggleFocus(d, focus) {
+  if (inTransition) return;
   d.ancestors().forEach(ancestor => ancestor.focus = focus);
   g.selectAll('.link').attr('class', d => d.focus ? 'link focus' : 'link');
 }
 
-// Toggle children on click.
-function click(d) {
+function toggleChildren(d) {
   if (!d.children && !d._children) return;
+  d.ancestors().forEach(ancestor => ancestor.focus = false);
+  g.selectAll('.link').attr('class', 'link');
   if (d.children) {
     d._children = d.children;
     d.children = null;

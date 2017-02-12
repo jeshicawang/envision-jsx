@@ -15,6 +15,14 @@ h1 {
   color: #99c27c;
 }
 
+h2 {
+  position: absolute;
+  top: 105px;
+  left: 45px;
+  font-weight: 300;
+  color: #5ab6c1;
+}
+
 .node rect {
   fill: #3b424e;
 }
@@ -38,12 +46,13 @@ h1 {
 
 .link {
   fill: none;
-  stroke: #65b0ed;
+  stroke: #c57bdb;
   stroke-opacity: 0.3;
   stroke-width: 3px;
 }
 
 .link.focus {
+  stroke: #5ab6c1;
   stroke-opacity: .7;
   stroke-width: 4px;
 }
