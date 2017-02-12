@@ -6,7 +6,7 @@ const stratify = d3.stratify()
 
 const root = stratify(data);
 
-const width = 1200;
+const width = 1600;
 const height = 960;
 let source = { x0: width / 2 - 70, y0: 0 }
 let i = 0;
@@ -29,9 +29,12 @@ const path = (start, end) => {
     + " " + start.x + "," + start.y;
 }
 
+const id = (data) => data.id.substring(data.id.lastIndexOf('.') + 1)
+
 update(root);
 
 function update(root) {
+
   const t = d3.transition().duration(1000);
 
   const link = g.selectAll('.link')
@@ -56,21 +59,28 @@ function update(root) {
   const nodeEnter = node.enter()
     .append('g')
       .attr('class', d => 'node' + ((d.children || d._children) ? ' node--internal' : ' node--leaf'))
-      .attr('transform', d => 'translate(' + source.x0 + ',' + (d.children ? source.y0 + 24 : source.y0) + ')')
+      .attr('transform', d => 'translate(' + source.x0 + ',' + source.y0 + ')')
       .on('click', click);
 
-  nodeEnter.append('circle')
-    .attr('r', 2.5)
+  const getBBox = (selection) => selection.each(function(d) { d.bbox = this.getBBox(); })
+  const bboxPadding = 8;
+
+  const nodeText = nodeEnter.append('text')
+    .style('text-anchor', 'middle')
     .style("fill-opacity", 1e-6)
+    .text(id)
+    .call(getBBox)
     .transition(t)
     .style("fill-opacity", 1)
 
-  nodeEnter.append('text')
-    .attr('dy', 3)
-    .attr('y', d => d.children ? -12 : 12)
-    .style('text-anchor', 'middle')
+  nodeEnter.insert('rect', 'text')
+    .attr('x', d => (d.bbox.width + (bboxPadding*2)) / -2)
+    .attr('y', d => - d.bbox.height - 2)
+    .attr('height', d => d.bbox.height + (bboxPadding*2))
+    .attr('width', d => d.bbox.width + (bboxPadding*2))
+    .attr('rx', 8)
+    .attr('ry', 8)
     .style("fill-opacity", 1e-6)
-    .text(d => d.id.substring(d.id.lastIndexOf('.') + 1))
     .transition(t)
     .style("fill-opacity", 1)
 
@@ -79,21 +89,14 @@ function update(root) {
     .attr('class', d => 'node' + ((d.children || d._children) ? ' node--internal' : ' node--leaf'))
     .attr('transform', d => 'translate(' + d.x + ',' + d.y + ')');
 
-  nodeUpdate.select('text')
-    .attr('y', d => d.children ? -12 : 12);
-
   const nodeExit = node.exit();
 
-  nodeExit.select('text')
-    .transition(t)
-    .style("fill-opacity", 1e-6);
-
-  nodeExit.select('circle')
+  nodeExit.selectAll('text, rect')
     .transition(t)
     .style("fill-opacity", 1e-6);
 
   nodeExit.transition(t)
-    .attr('transform', d => 'translate(' + source.x + ',' + (d.children ? source.y + 24 : source.y) + ')')
+    .attr('transform', d => 'translate(' + source.x + ',' + source.y + ')')
     .remove();
 
 }
