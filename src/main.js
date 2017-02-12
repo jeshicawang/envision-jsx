@@ -8,7 +8,7 @@ const root = stratify(data);
 
 const width = 1600;
 const height = 960;
-let source = { x0: width / 2 - 70, y0: 0 }
+let source = { x0: width / 2, y0: 0 }
 let i = 0;
 
 const svg = d3.select('#tree')
@@ -43,17 +43,16 @@ function update(root) {
     .data(tree(root).descendants().slice(1), d => d.key || (d.key = ++i))
 
   const linkEnter = link.enter().insert('path', 'g')
-    .attr('class', 'link')
     .attr('d', d => path({ x: source.x0, y: source.y0 }));
 
   const linkUpdate = linkEnter.merge(link)
-    .attr('class', d => d.focus ? 'link focus' : 'link')
+      .attr('class', 'link')
     .transition(t)
-    .attr('d', d => path({ x: d.parent.x, y: d.parent.y }, { x: d.x, y: d.y }));
+      .attr('d', d => path({ x: d.parent.x, y: d.parent.y }, { x: d.x, y: d.y }));
 
   const linkExit = link.exit()
     .transition(t)
-    .attr('d', d => path({ x: source.x, y: source.y }))
+      .attr('d', d => path({ x: source.x, y: source.y }))
     .remove();
 
   const node = g.selectAll('.node')
@@ -64,46 +63,50 @@ function update(root) {
       .attr('class', d => 'node' + ((d.children || d._children) ? ' node--internal' : ' node--leaf'))
       .attr('transform', d => 'translate(' + source.x0 + ',' + source.y0 + ')')
       .on('click', toggleChildren)
-      .on('mouseenter', d => toggleFocus(d, true))
+      .on('mouseenter', function(d) { toggleFocus(d, true); this.parentElement.appendChild(this); })
       .on('mouseleave', d => toggleFocus(d, false));
 
   const getBBox = (selection) => selection.each(function(d) { d.bbox = this.getBBox(); })
   const bboxPadding = 8;
 
   const nodeText = nodeEnter.append('text')
-    .style('text-anchor', 'middle')
-    .style("fill-opacity", 1e-6)
-    .text(id)
-    .call(getBBox)
+      .style('text-anchor', 'middle')
+      .style("fill-opacity", 1e-6)
+      .text(id)
+      .call(getBBox)
     .transition(t)
-    .style("fill-opacity", 1)
+      .style("fill-opacity", 1)
 
   nodeEnter.insert('rect', 'text')
-    .attr('x', d => (d.bbox.width + (bboxPadding*2)) / -2)
-    .attr('y', d => - d.bbox.height - 2)
-    .attr('height', d => d.bbox.height + (bboxPadding*2))
-    .attr('width', d => d.bbox.width + (bboxPadding*2))
-    .attr('rx', 8)
-    .attr('ry', 8)
-    .style("fill-opacity", 1e-6)
+      .attr('x', d => (d.bbox.width + (bboxPadding*2)) / -2)
+      .attr('y', d => - d.bbox.height - 2)
+      .attr('height', d => d.bbox.height + (bboxPadding*2))
+      .attr('width', d => d.bbox.width + (bboxPadding*2))
+      .attr('rx', 8)
+      .attr('ry', 8)
+      .style("fill-opacity", 1e-6)
+      .style('stroke-opacity', 1e-6)
     .transition(t)
-    .style("fill-opacity", 1)
+      .style("fill-opacity", 1)
+      .style('stroke-opacity', .2)
 
   const nodeUpdate = nodeEnter.merge(node)
     .transition(t)
-    .attr('class', d => 'node' + ((d.children || d._children) ? ' node--internal' : ' node--leaf'))
-    .attr('transform', d => 'translate(' + d.x + ',' + d.y + ')')
-    .on('start', () => inTransition = true)
-    .on('end', () => inTransition = false)
+      .attr('class', d => 'node' + ((d.children || d._children) ? ' node--internal' : ' node--leaf'))
+      .attr('transform', d => 'translate(' + d.x + ',' + d.y + ')')
+      .on('start', () => inTransition = true)
+      .on('end', () => inTransition = false)
 
   const nodeExit = node.exit();
 
   nodeExit.selectAll('text, rect')
     .transition(t)
-    .style("fill-opacity", 1e-6);
+      .style('fill-opacity', 1e-6)
+      .style('stroke-opacity', 1e-6);
 
-  nodeExit.transition(t)
-    .attr('transform', d => 'translate(' + source.x + ',' + source.y + ')')
+  nodeExit
+    .transition(t)
+      .attr('transform', d => 'translate(' + source.x + ',' + source.y + ')')
     .remove();
 
 }
@@ -116,8 +119,6 @@ function toggleFocus(d, focus) {
 
 function toggleChildren(d) {
   if (!d.children && !d._children) return;
-  d.ancestors().forEach(ancestor => ancestor.focus = false);
-  g.selectAll('.link').attr('class', 'link');
   if (d.children) {
     d._children = d.children;
     d.children = null;
@@ -128,5 +129,6 @@ function toggleChildren(d) {
   source = d;
   source.x0 = d.x;
   source.y0 = d.y;
+  d.ancestors().forEach(ancestor => ancestor.focus = false);
   update(root);
 }
