@@ -40,5 +40,10 @@ h1 {
   fill: none;
   stroke: #65b0ed;
   stroke-opacity: 0.3;
-  stroke-width: 2px;
+  stroke-width: 3px;
+}
+
+.link.focus {
+  stroke-opacity: .7;
+  stroke-width: 4px;
 }

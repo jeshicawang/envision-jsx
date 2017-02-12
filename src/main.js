@@ -45,6 +45,7 @@ function update(root) {
     .attr('d', d => path({ x: source.x0, y: source.y0 }));
 
   const linkUpdate = linkEnter.merge(link)
+    .attr('class', d => d.focus ? 'link focus' : 'link')
     .transition(t)
     .attr('d', d => path({ x: d.parent.x, y: d.parent.y }, { x: d.x, y: d.y }));
 
@@ -60,7 +61,9 @@ function update(root) {
     .append('g')
       .attr('class', d => 'node' + ((d.children || d._children) ? ' node--internal' : ' node--leaf'))
       .attr('transform', d => 'translate(' + source.x0 + ',' + source.y0 + ')')
-      .on('click', click);
+      .on('click', click)
+      .on('mouseenter', d => toggleFocus(d, true))
+      .on('mouseleave', d => toggleFocus(d, false));
 
   const getBBox = (selection) => selection.each(function(d) { d.bbox = this.getBBox(); })
   const bboxPadding = 8;
@@ -87,7 +90,7 @@ function update(root) {
   const nodeUpdate = nodeEnter.merge(node)
     .transition(t)
     .attr('class', d => 'node' + ((d.children || d._children) ? ' node--internal' : ' node--leaf'))
-    .attr('transform', d => 'translate(' + d.x + ',' + d.y + ')');
+    .attr('transform', d => 'translate(' + d.x + ',' + d.y + ')')
 
   const nodeExit = node.exit();
 
@@ -99,6 +102,11 @@ function update(root) {
     .attr('transform', d => 'translate(' + source.x + ',' + source.y + ')')
     .remove();
 
+}
+
+function toggleFocus(d, focus) {
+  d.ancestors().forEach(ancestor => ancestor.focus = focus);
+  g.selectAll('.link').attr('class', d => d.focus ? 'link focus' : 'link');
 }
 
 // Toggle children on click.
