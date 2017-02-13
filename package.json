@@ -12,15 +12,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/jeshicawang/envision.git"
+    "url": "git+https://github.com/jeshicawang/envision-jsx.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/jeshicawang/envision/issues"
+    "url": "https://github.com/jeshicawang/envision-jsx/issues"
   },
-  "homepage": "https://github.com/jeshicawang/envision#readme",
+  "homepage": "https://github.com/jeshicawang/envision-jsx#readme",
   "dependencies": {
     "acorn-jsx": "^3.0.1",
     "mustache": "^2.3.0"
