@@ -78,6 +78,7 @@ const createEnvisionHTML = (hierarchy) => {
 
 // compute hierarchial tree data starting from rootFile and create files to render the tree display.
 const envision = (rootFile) => {
+  console.log('Envisioning...');
   const hierarchy = [];
   const rootDirectory = rootFile.substring(0, rootFile.lastIndexOf('/') + 1);
   readFiles(rootFile, { rootDirectory, hierarchy, chain: '' });
