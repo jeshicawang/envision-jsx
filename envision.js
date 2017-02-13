@@ -60,20 +60,29 @@ const readFiles = (path, state) => {
   walk.ancestor(ast, jsxElementVisitors(ast), base, state);
 }
 
+const writeHTML = (content) => {
+  fs.writeFile('envision.html', content, (err) => {
+    if (err) throw err;
+    console.log('Done! envision.html created.');
+    opn('envision.html', { wait: false });
+  })
+}
+
 // create envision.html file from src files
-const createEnvisionHTML = (hierarchy) => {
+const getHTML = (hierarchy) => {
   const template = fs.readFileSync(__dirname + '/src/template.mustache', 'utf-8');
   const view = {
     css: fs.readFileSync(__dirname + '/src/default.css', 'utf-8'),
     javascript: fs.readFileSync(__dirname + '/src/main.js', 'utf-8'),
     hierarchy: JSON.stringify(hierarchy)
   }
-  const output = Mustache.render(template, view)
-  fs.writeFile('envision.html', output, (err) => {
-    if (err) throw err;
-    console.log('Done! envision.html created.');
-    opn('envision.html', { wait: false });
-  })
+  return Mustache.render(template, view);
+}
+
+const processHierarchy = (hierarchy) => {
+  const roots = hierarchy.filter(item => item.indexOf('.') === -1);
+  const error = roots.length > 1 ? 'Path has multiple roots. Try a different path file?' : null;
+  return { error, roots, hierarchy }
 }
 
 // compute hierarchial tree data starting from rootFile and create files to render the tree display.
@@ -82,7 +91,9 @@ const envision = (rootFile) => {
   const hierarchy = [];
   const rootDirectory = rootFile.substring(0, rootFile.lastIndexOf('/') + 1);
   readFiles(rootFile, { rootDirectory, hierarchy, chain: '' });
-  createEnvisionHTML(hierarchy);
+  const result = processHierarchy(hierarchy);
+  if (result.error) throw new Error(result.error);
+  writeHTML(getHTML(result.hierarchy));
 }
 
 module.exports = envision;
