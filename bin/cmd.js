@@ -10,5 +10,3 @@ program
   .arguments('<root-file>')
   .action((rootFile) => envision(rootFile))
   .parse(process.argv);
-
-console.log('Done! Open index.html from envision/ to view rendered tree diagram.');

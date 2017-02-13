@@ -2,7 +2,7 @@
   "name": "envision",
   "version": "1.0.0",
   "description": "A developer tool to visualize an application's component hierarchy.",
-  "main": "index.js",
+  "main": "envision.js",
   "bin": {
     "envision": "bin/cmd.js"
   },
