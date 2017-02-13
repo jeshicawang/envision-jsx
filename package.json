@@ -2,7 +2,7 @@
   "name": "envision-jsx",
   "version": "1.0.1",
   "description": "A developer tool to visualize an application's component hierarchy.",
-  "main": "envision.js",
+  "main": "index.js",
   "bin": {
     "envision": "bin/cmd.js"
   },
@@ -23,6 +23,7 @@
   "homepage": "https://github.com/jeshicawang/envision-jsx#readme",
   "dependencies": {
     "acorn-jsx": "^3.0.1",
+    "commander": "^2.9.0",
     "mustache": "^2.3.0"
   },
   "devDependencies": {
