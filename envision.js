@@ -4,6 +4,8 @@ const walk = require('acorn/dist/walk');
 const Mustache = require('mustache');
 const opn = require('opn');
 
+const OUTPUT_FILE_NAME = 'envision.html';
+
 // custom walker algorithm adding functionality for walk to traverse JSX
 const base = Object.assign({}, walk.base, {
   JSXElement: (node, st, c) => node.children.forEach(n => c(n, st)),
@@ -60,16 +62,17 @@ const readFiles = (path, state) => {
   walk.ancestor(ast, jsxElementVisitors(ast), base, state);
 }
 
-const writeHTML = (content) => {
-  fs.writeFile('envision.html', content, (err) => {
+// writes content to a file with the specified name
+const writeFile = (fileName, content) => {
+  fs.writeFile(fileName, content, (err) => {
     if (err) throw err;
-    console.log('Done! envision.html created.');
-    opn('envision.html', { wait: false });
+    console.log('Done! ' + fileName + ' created.');
+    opn(fileName, { wait: false });
   })
 }
 
-// create envision.html file from src files
-const getHTML = (hierarchy) => {
+// create html file with tree rendering using data from src files
+const templateHTML = (hierarchy) => {
   const template = fs.readFileSync(__dirname + '/src/template.mustache', 'utf-8');
   const view = {
     css: fs.readFileSync(__dirname + '/src/default.css', 'utf-8'),
@@ -79,6 +82,7 @@ const getHTML = (hierarchy) => {
   return Mustache.render(template, view);
 }
 
+// make sure hierarchy has a single root
 const processHierarchy = (hierarchy) => {
   const roots = hierarchy.filter(item => item.indexOf('.') === -1);
   const error = roots.length > 1 ? 'Path has multiple roots. Try a different path file?' : null;
@@ -93,7 +97,7 @@ const envision = (rootFile) => {
   readFiles(rootFile, { rootDirectory, hierarchy, chain: '' });
   const result = processHierarchy(hierarchy);
   if (result.error) throw new Error(result.error);
-  writeHTML(getHTML(result.hierarchy));
+  writeFile(OUTPUT_FILE_NAME, templateHTML(result.hierarchy));
 }
 
 module.exports = envision;
