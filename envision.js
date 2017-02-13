@@ -60,9 +60,18 @@ const variableDeclaratorVisitors = (rootDirectory, hierarchy, chain) => ({
 const jsxElementVisitors = (ast) => ({
   JSXElement: (node, { rootDirectory, hierarchy, chain }, ancestors) => {
     const componentChain = ancestors
-      .filter(a => a.type === 'JSXElement')
-      .map(a => a.openingElement.name.name)
-      .filter(name => name.charAt(0) === name.charAt(0).toUpperCase())
+      .filter(ancestor => ancestor.type === 'JSXElement')
+      .map(jsx => jsx.openingElement)
+      .filter(jsx => jsx.name.name.charAt(0) === jsx.name.name.charAt(0).toUpperCase())
+      // if it's a react-router component, maps the name of the component attribute
+      .map(jsx => {
+        if (!['Router', 'Route', 'IndexRoute'].includes(jsx.name.name)) return jsx.name.name;
+        const component = jsx.attributes.find(attr => attr.name.name === 'component');
+        return component ? component.value.expression.name : null;
+      })
+      // returns an empty array if last item in the array is falsey
+      .reduce((components, item, index, array) => (index === array.length - 1 && !item) ? [] : array, [])
+      .filter(name => !!name)
       .reduce((chain, name) => chain + (chain ? '.' : '') + name, chain);
     if (!componentChain || componentChain === chain) return;
     hierarchy.push(componentChain);
