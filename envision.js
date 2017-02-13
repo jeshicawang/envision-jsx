@@ -12,9 +12,12 @@ const base = Object.assign({}, walk.base, {
 // visitors for walk.simple call
 const variableDeclaratorVisitors = (rootDirectory, hierarchy, chain) => ({
   VariableDeclarator: (node, state) => {
-    if (node.id.name !== state) return;
-    if (node.init.type === 'ArrowFunctionExpression') return;
+    if (node.id.type !== 'Identifier' && node.id.type !== 'ObjectPattern') return;
+    if (node.id.type === 'Identifier' && node.id.name !== state) return;
+    if (node.id.type === 'ObjectPattern' && !node.id.properties.map(property => property.key.name).includes(state)) return;
+    if (!node.init.callee || node.init.callee.name !== 'require') return;
     const value = node.init.arguments[0].value;
+    if (value.charAt(0) !== '.') return;
     const file = rootDirectory + value.substring(2);
     rootDirectory = file.substring(0, file.lastIndexOf('/') + 1);
     readFiles(file, { rootDirectory, hierarchy, chain });
@@ -31,7 +34,7 @@ const jsxElementVisitors = (ast) => ({
       .reduce((hierarchy, name) => hierarchy + (hierarchy ? '.' : '') + name, chain);
     if (!componentChain || componentChain === chain) return;
     hierarchy.push(componentChain);
-    if (!node.openingElement.selfClosing) return;
+    //if (!node.openingElement.selfClosing) return;
     const state = node.openingElement.name.name;
     walk.simple(ast, variableDeclaratorVisitors(rootDirectory, hierarchy, componentChain), base, state)
   }
@@ -39,6 +42,7 @@ const jsxElementVisitors = (ast) => ({
 
 // parsing the data from a file and calling a walker function to traverse the resulting AST
 const readFiles = (file, state) => {
+  if (file.substring(file.length - 3) !== '.js') file = file + '.js';
   const data = fs.readFileSync(file, 'utf-8');
   const ast = acorn.parse(data, { plugins: { jsx: true } });
   walk.ancestor(ast, jsxElementVisitors(ast), base, state);
