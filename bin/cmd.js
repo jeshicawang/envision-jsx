@@ -7,6 +7,6 @@ console.log('Envisioning...');
 
 program
   .version('1.0.0')
-  .arguments('<root-file>')
-  .action((rootFile) => envision(rootFile))
+  .arguments('<file>')
+  .action((file) => envision(file))
   .parse(process.argv);
