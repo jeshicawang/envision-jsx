@@ -27,12 +27,29 @@ const match = (node, name) => {
 // returns whether the node is a require call or not
 const requireCall = (node) => node.init.callee && node.init.callee.name === 'require';
 
+// if it's a relative path returns false, if it's a module path returns true
+const relativePath = (file) => (file.charAt(0) === '.');
+
+const getPath = (file) => {
+  const path = rootDirectory + file.substring(2);
+  rootDirectory = path.substring(0, path.lastIndexOf('/') + 1);
+  return path;
+}
+
 // visitors for walk.simple call
 const variableDeclaratorVisitors = (rootDirectory, hierarchy, chain) => ({
   VariableDeclarator: (node, state) => {
     if (!match(node, state) || !requireCall(node)) return;
     const file = node.init.arguments[0].value;
-    if (file.charAt(0) !== '.') return;
+    if (!relativePath(file)) return;
+    const path = rootDirectory + file.substring(2);
+    rootDirectory = path.substring(0, path.lastIndexOf('/') + 1);
+    readFiles(path, { rootDirectory, hierarchy, chain });
+  },
+  ImportDeclaration: (node, state) => {
+    if (node.specifiers.every(specifier => specifier.local.name !== state)) return;
+    const file = node.source.value;
+    if (!relativePath(file)) return;
     const path = rootDirectory + file.substring(2);
     rootDirectory = path.substring(0, path.lastIndexOf('/') + 1);
     readFiles(path, { rootDirectory, hierarchy, chain });
@@ -58,7 +75,7 @@ const jsxElementVisitors = (ast) => ({
 const readFiles = (path, state) => {
   if (path.substring(path.length - 3) !== '.js') path = path + '.js';
   const data = fs.readFileSync(path, 'utf-8');
-  const ast = acorn.parse(data, { plugins: { jsx: true } });
+  const ast = acorn.parse(data, { sourceType: 'module', plugins: { jsx: true } });
   walk.ancestor(ast, jsxElementVisitors(ast), base, state);
 }
 
