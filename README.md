@@ -6,11 +6,11 @@ A developer tool for visualizing a React application's component hierarchy.
 
 Install globally for usage anywhere on your system.
 
-  $ npm install -g envision-jsx
+    $ npm install -g envision-jsx
   
 Once installed, cd into the directory that contains your source file, and pass in the path to the root component you want to begin with (Typically where your ReactDOM.render call is). Envision will generate a tree diagram visualizing your application's React JSX component hierarchy.
 
-  $ envision \<root-file\>
+    $ envision \<root-file\>
   
 ## Prerequisites
 
