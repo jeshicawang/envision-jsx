@@ -2,6 +2,7 @@ const fs = require('fs');
 const acorn = require('acorn-jsx');
 const walk = require('acorn/dist/walk');
 const Mustache = require('mustache');
+const opn = require('opn');
 
 // custom walker algorithm adding functionality for walk to traverse JSX
 const base = Object.assign({}, walk.base, {
@@ -70,7 +71,8 @@ const createEnvisionHTML = (hierarchy) => {
   const output = Mustache.render(template, view)
   fs.writeFile('envision.html', output, (err) => {
     if (err) throw err;
-    console.log('Done! Open envision.html to view rendered tree diagram.');
+    console.log('Done! envision.html created.');
+    opn('envision.html', { wait: false });
   })
 }
 
