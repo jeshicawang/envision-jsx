@@ -1,4 +1,4 @@
 node_modules/
-bundle.js
+test/
 npm-debug.log
 envision.html

@@ -1,8 +1,8 @@
 {
-  "name": "envision",
-  "version": "1.0.0",
+  "name": "envision-jsx",
+  "version": "1.0.4",
   "description": "A developer tool to visualize an application's component hierarchy.",
-  "main": "index.js",
+  "main": "envision.js",
   "bin": {
     "envision": "bin/cmd.js"
   },
@@ -12,18 +12,20 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/jeshicawang/envision.git"
+    "url": "git+https://github.com/jeshicawang/envision-jsx.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/jeshicawang/envision/issues"
+    "url": "https://github.com/jeshicawang/envision-jsx/issues"
   },
-  "homepage": "https://github.com/jeshicawang/envision#readme",
+  "homepage": "https://github.com/jeshicawang/envision-jsx#readme",
   "dependencies": {
     "acorn-jsx": "^3.0.1",
-    "mustache": "^2.3.0"
+    "commander": "^2.9.0",
+    "mustache": "^2.3.0",
+    "opn": "^4.0.2"
   },
   "devDependencies": {
     "nodemon": "^1.11.0"

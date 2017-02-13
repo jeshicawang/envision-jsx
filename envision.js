@@ -2,6 +2,7 @@ const fs = require('fs');
 const acorn = require('acorn-jsx');
 const walk = require('acorn/dist/walk');
 const Mustache = require('mustache');
+const opn = require('opn');
 
 // custom walker algorithm adding functionality for walk to traverse JSX
 const base = Object.assign({}, walk.base, {
@@ -9,15 +10,30 @@ const base = Object.assign({}, walk.base, {
   JSXExpressionContainer: (node, st, c) => c(node.expression, st)
 })
 
+// returns whether the node's variable declarator name matches name or not
+const match = (node, name) => {
+  switch (node.id.type) {
+    case 'Identifier':
+      return node.id.name === name;
+    case 'ObjectPattern':
+      return node.id.properties.map(property => property.key.name).includes(name);
+    default:
+      return false;
+  }
+}
+
+// returns whether the node is a require call or not
+const requireCall = (node) => node.init.callee && node.init.callee.name === 'require';
+
 // visitors for walk.simple call
 const variableDeclaratorVisitors = (rootDirectory, hierarchy, chain) => ({
   VariableDeclarator: (node, state) => {
-    if (node.id.name !== state) return;
-    if (node.init.type === 'ArrowFunctionExpression') return;
-    const value = node.init.arguments[0].value;
-    const file = rootDirectory + value.substring(2);
-    rootDirectory = file.substring(0, file.lastIndexOf('/') + 1);
-    readFiles(file, { rootDirectory, hierarchy, chain });
+    if (!match(node, state) || !requireCall(node)) return;
+    const file = node.init.arguments[0].value;
+    if (file.charAt(0) !== '.') return;
+    const path = rootDirectory + file.substring(2);
+    rootDirectory = path.substring(0, path.lastIndexOf('/') + 1);
+    readFiles(path, { rootDirectory, hierarchy, chain });
   }
 })
 
@@ -28,18 +44,18 @@ const jsxElementVisitors = (ast) => ({
       .filter(a => a.type === 'JSXElement')
       .map(a => a.openingElement.name.name)
       .filter(name => name.charAt(0) === name.charAt(0).toUpperCase())
-      .reduce((hierarchy, name) => hierarchy + (hierarchy ? '.' : '') + name, chain);
+      .reduce((chain, name) => chain + (chain ? '.' : '') + name, chain);
     if (!componentChain || componentChain === chain) return;
     hierarchy.push(componentChain);
-    if (!node.openingElement.selfClosing) return;
     const state = node.openingElement.name.name;
     walk.simple(ast, variableDeclaratorVisitors(rootDirectory, hierarchy, componentChain), base, state)
   }
 })
 
 // parsing the data from a file and calling a walker function to traverse the resulting AST
-const readFiles = (file, state) => {
-  const data = fs.readFileSync(file, 'utf-8');
+const readFiles = (path, state) => {
+  if (path.substring(path.length - 3) !== '.js') path = path + '.js';
+  const data = fs.readFileSync(path, 'utf-8');
   const ast = acorn.parse(data, { plugins: { jsx: true } });
   walk.ancestor(ast, jsxElementVisitors(ast), base, state);
 }
@@ -55,12 +71,14 @@ const createEnvisionHTML = (hierarchy) => {
   const output = Mustache.render(template, view)
   fs.writeFile('envision.html', output, (err) => {
     if (err) throw err;
-    console.log('envision.html created');
+    console.log('Done! envision.html created.');
+    opn('envision.html', { wait: false });
   })
 }
 
 // compute hierarchial tree data starting from rootFile and create files to render the tree display.
 const envision = (rootFile) => {
+  console.log('Envisioning...');
   const hierarchy = [];
   const rootDirectory = rootFile.substring(0, rootFile.lastIndexOf('/') + 1);
   readFiles(rootFile, { rootDirectory, hierarchy, chain: '' });
