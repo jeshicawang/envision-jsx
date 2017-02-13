@@ -14,4 +14,4 @@ Once installed, cd into the directory that contains your source file, and pass i
   
 ## Prerequisites
 
-For now... envision will only understand your *unbundled* source code and you must use JSX. 
+For now... envision will only understand your *unbundled* source code and assumes you are using JSX. 
