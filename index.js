@@ -1,5 +1,4 @@
 // For testing.
 
 const envision = require('./envision');
-
-envision('../mytrips/src/index');
+envision('../mytrips/src/index.js');
