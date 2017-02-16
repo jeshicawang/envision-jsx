@@ -1,5 +1,7 @@
 ![](http://g.recordit.co/JMZWz74YRt.gif)
 
+![](http://g.recordit.co/0wZI7IRCTR.gif)
+
 # ENVISION 
 
 A developer tool for visualizing a React application's component hierarchy.
