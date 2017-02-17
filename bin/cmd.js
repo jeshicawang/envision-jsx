@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 
-const envision = require('../envision.js');
+const Envision = require('../envision.js');
 const program = require('commander');
 
 program
-  .version('1.0.6')
+  .version('1.0.8')
   .arguments('<root-file>')
-  .action((rootFile) => envision(rootFile))
+  .action((rootFile) => Envision.parse(rootFile))
   .parse(process.argv);

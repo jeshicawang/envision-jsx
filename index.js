@@ -1,4 +1,4 @@
 // For testing.
 
-const envision = require('./envision');
-envision('../mytrips/src/index.js');
+const Envision = require('./envision');
+Envision.parse('../mytrips/src/index.js');
