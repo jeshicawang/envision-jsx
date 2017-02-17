@@ -27,14 +27,8 @@ const match = (node, name) => {
 // returns whether the node is a require call or not
 const requireCall = (node) => node.init.callee && node.init.callee.name === 'require';
 
-// if it's a relative path returns false, if it's a module path returns true
+// if it's a relative path returns true, if it's a module path returns false
 const relativePath = (file) => (file.charAt(0) === '.');
-
-const getPath = (file) => {
-  const path = rootDirectory + file.substring(2);
-  rootDirectory = path.substring(0, path.lastIndexOf('/') + 1);
-  return path;
-}
 
 // visitors for walk.simple call
 const variableDeclaratorVisitors = (rootDirectory, hierarchy, chain) => ({
@@ -116,7 +110,7 @@ const processHierarchy = (hierarchy) => {
 }
 
 // compute hierarchial tree data starting from rootFile and create files to render the tree display.
-const envision = (rootFile) => {
+const parse = (rootFile) => {
   console.log('Envisioning...');
   const hierarchy = [];
   const rootDirectory = rootFile.substring(0, rootFile.lastIndexOf('/') + 1);
@@ -126,4 +120,11 @@ const envision = (rootFile) => {
   writeFile(OUTPUT_FILE_NAME, templateHTML(result.hierarchy));
 }
 
-module.exports = envision;
+module.exports = {
+  match,
+  requireCall,
+  relativePath,
+  templateHTML,
+  processHierarchy,
+  parse
+};

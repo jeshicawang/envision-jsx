@@ -7,6 +7,8 @@
     "envision": "bin/cmd.js"
   },
   "scripts": {
+    "test": "mocha",
+    "tdd": "mocha --watch -R nyan",
     "start": "node .",
     "watch": "nodemon ."
   },
@@ -28,6 +30,8 @@
     "opn": "^4.0.2"
   },
   "devDependencies": {
+    "chai": "^3.5.0",
+    "mocha": "^3.2.0",
     "nodemon": "^1.11.0"
   }
 }
