@@ -6,8 +6,8 @@ const stratify = d3.stratify()
 
 const root = stratify(data);
 
-const width = 1600;
-const height = 960;
+const width = window.innerWidth;
+const height = window.innerHeight;
 let source = { x0: width / 2, y0: 0 }
 let i = 0;
 
@@ -19,7 +19,7 @@ const g = svg.append('g')
   .attr('transform', 'translate(80,80)')
 
 const tree = d3.tree()
-  .size([width - 160, height - 160]);
+  .size([width - 160, height - 200]);
 
 const path = (start, end) => {
   if (!end) end = start;
