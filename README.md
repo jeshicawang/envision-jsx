@@ -1,4 +1,4 @@
-![](https://travis-ci.org/jeshicawang/envision-jsx.svg?branch=master)
+![](https://travis-ci.org/jeshicawang/envision-jsx.svg?branch=master) ![](https://badge.fury.io/js/envision-jsx.svg)
 
 ![](http://g.recordit.co/JMZWz74YRt.gif)
 
