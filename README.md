@@ -1,3 +1,4 @@
+![](https://travis-ci.org/jeshicawang/envision-jsx.svg?branch=master)
 ![](http://g.recordit.co/JMZWz74YRt.gif)
 
 # ENVISION 
