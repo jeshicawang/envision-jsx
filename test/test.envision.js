@@ -1,8 +1,21 @@
 const { expect } = require('chai');
 const acorn = require('acorn-jsx');
+const walk = require('acorn/dist/walk');
 const Envision = require('../envision.js');
 
 describe('Envision', () => {
+
+  describe('base', () => {
+
+    it('should be a new custom base object with added properties for traversing JSX elements', () => {
+      const base = Envision.base;
+      expect(base).to.be.an('object');
+      expect(base).to.include.keys('JSXElement', 'JSXExpressionContainer');
+      expect(base.JSXElement).to.be.a('function');
+      expect(base.JSXExpressionContainer).to.be.a('function');
+    })
+
+  })
 
   describe('match', () => {
 
@@ -50,6 +63,29 @@ describe('Envision', () => {
     it('should return true if it\'s a relative path', () => {
       expect(Envision.relativePath('./relative')).to.be.true;
       expect(Envision.relativePath('module')).to.be.false;
+    })
+
+  })
+
+  describe('declaratorVisitors', () => {
+
+    it('should return a visitors object', () => {
+      const visitors = Envision.declaratorVisitors();
+      expect(visitors).to.be.an('object');
+      expect(visitors).to.include.keys('VariableDeclarator', 'ImportDeclaration');
+      expect(visitors.VariableDeclarator).to.be.a('function');
+      expect(visitors.ImportDeclaration).to.be.a('function');
+    })
+
+  })
+
+  describe('jsxElementVisitors', () => {
+
+    it('should return a visitors object', () => {
+      const visitors = Envision.jsxElementVisitors();
+      expect(visitors).to.be.an('object');
+      expect(visitors).to.include.keys('JSXElement');
+      expect(visitors.JSXElement).to.be.a('function');
     })
 
   })

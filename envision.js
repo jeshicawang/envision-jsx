@@ -31,7 +31,7 @@ const requireCall = (node) => node.init.callee && node.init.callee.name === 'req
 const relativePath = (file) => (file.charAt(0) === '.');
 
 // visitors for walk.simple call
-const variableDeclaratorVisitors = (rootDirectory, hierarchy, chain) => ({
+const declaratorVisitors = (rootDirectory, hierarchy, chain) => ({
   VariableDeclarator: (node, state) => {
     if (!match(node, state) || !requireCall(node)) return;
     const file = node.init.arguments[0].value;
@@ -70,7 +70,7 @@ const jsxElementVisitors = (ast) => ({
     if (!componentChain || componentChain === chain) return;
     hierarchy.push(componentChain);
     const state = node.openingElement.name.name;
-    walk.simple(ast, variableDeclaratorVisitors(rootDirectory, hierarchy, componentChain), base, state)
+    walk.simple(ast, declaratorVisitors(rootDirectory, hierarchy, componentChain), base, state)
   }
 })
 
@@ -121,9 +121,12 @@ const parse = (rootFile) => {
 }
 
 module.exports = {
+  base,
   match,
   requireCall,
   relativePath,
+  declaratorVisitors,
+  jsxElementVisitors,
   templateHTML,
   processHierarchy,
   parse

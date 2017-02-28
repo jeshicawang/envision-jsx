@@ -4,7 +4,7 @@ const Envision = require('../envision.js');
 const program = require('commander');
 
 program
-  .version('1.0.8')
+  .version('1.0.9')
   .arguments('<root-file>')
   .action((rootFile) => Envision.parse(rootFile))
   .parse(process.argv);
